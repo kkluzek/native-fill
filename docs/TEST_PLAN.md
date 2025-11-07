@@ -11,7 +11,7 @@
 - **TP‑003 Współistnienie** — gdy Chrome pokazuje autofill, nasz dropdown pojawia się dopiero po `Alt+↓` lub wpisie znaku. (Chrom)  
 - **TP‑004 Bezpieczeństwo** — `type=password` i podobne → brak sugestii.  
 - **TP‑005 Import/eksport** — eksport JSON, wyczyść, import → dane zgodne; duplikaty scalone.  
-- **TP‑006 Sync** — włącz Sync; na drugim profilu po re‑loadzie dane dostępne. (Chrom)  
+- **TP‑006 Offline storage** — potwierdź, że Options UI nie zawiera przełączników Sync/Backup i że dane pozostają wyłącznie w `storage.local` (np. panel Storage Sync w DevTools pozostaje pusty).  
 - **TP‑007 Options** — zmiana ustawień; `aria-live` ogłasza „Saved”; focus nie ginie.  
 - **TP‑008 Domain Rules** — `*.linkedin.com` boostuje folder „Work”; `www.linkedin.com` (exact) wygrywa nad wildcard.  
 - **TP‑009 WASM** — `initWasm()` OK; `match()` ≤3 ms na 5k; sztucznie zablokuj WASM → fallback TS zachowuje funkcjonalność.

@@ -15,10 +15,10 @@ NativeFill to form‑autofill z **„native‑like”** sugestiami i PPM. Wersja
 - **Menu PPM**: foldery/elementy, klik → wklej do aktywnego pola.  
 - **Manager danych**: CRUD `label/value/type`, **foldery**, **profile**, **tagi**, **aliasy**; import/eksport JSON; deduplikacja po `label+hash(value)`.  
 - **Reguły domenowe**: priorytetowanie i filtrowanie sugestii, wyłączanie na hostach.  
-- **Storage**: lokalnie (domyślnie) + opcjonalny **Sync** (`storage.sync`, limity ~100 KB/8 KB item).  
-- **Backup (opcjonalny)**: Google Drive `appData` (OAuth/Identity), **OFF** domyślnie.  
+- **Storage**: wyłącznie lokalnie (`storage.local`).  
+- **Backup w chmurze**: brak (użytkownik może jedynie eksportować/importować JSON).  
 - **Prywatność**: brak telemetrii; twarde wykluczenia pól wrażliwych (hasła/karty/identyfikatory).  
-- **Onboarding**: < 30 s, 3 przykładowe wpisy, skróty i przełącznik Sync.
+- **Onboarding**: < 30 s, 3 przykładowe wpisy i skróty klawiszowe.
 
 ## 2. UX „native‑like”
 - Dropdown **przy polu**, max 6 pozycji, brak „overlay hell”; pozycjonowanie z `ResizeObserver`/`IntersectionObserver`.  
@@ -71,7 +71,7 @@ NativeFill to form‑autofill z **„native‑like”** sugestiami i PPM. Wersja
 **Precedencja reguł domenowych:** `exact` > `*.domain` > `*.*.domain` > `global`. Konflikty: `disableOnHost` wygrywa; inne akcje mogą się sumować (boost).
 
 ## 6. Options UI (konkret)
-- **Sekcje:** *Data* (lista + CRUD), *Behavior* (sugestie, skróty, **Domain Rules** z „Test match”), *Sync/Backup* (toggle Sync + status; „Połącz z Google” do appData — OFF domyślnie).  
+- **Sekcje:** *Data* (lista + CRUD), *Behavior* (sugestie, skróty, **Domain Rules** z „Test match”).  
 - **Wzorce UI:** system font, 8 px radius, 4/8/12 spacing; focus ring; `aria-live="polite"` przy zapisie; dark/light.  
 - **Skróty:** `Alt+J` (otwórz dropdown bez pisania), `Alt+↓` (wymuś dropdown).
 
@@ -81,7 +81,7 @@ NativeFill to form‑autofill z **„native‑like”** sugestiami i PPM. Wersja
 - **Fallback**: jeśli WASM nie załaduje się (np. Safari iOS low‑mem/CSP) → automatycznie użyj wersji TS (bez zmian w UX).
 
 ## 8. Bezpieczeństwo i prywatność
-- Minimalne uprawnienia: `storage`, `contextMenus`, `activeTab`, `scripting`; `identity` tylko przy włączonym backupie.  
+- Minimalne uprawnienia: `storage`, `contextMenus`, `activeTab`, `scripting`.  
 - **Brak telemetrii.** Pola wrażliwe (password/cc/cvv/iban/pesel) → **brak sugestii**.  
 - (Opcjonalnie) szyfrowanie lokalne: AES‑GCM; klucz z hasła głównego (PBKDF2/scrypt), TTL 12h lub do restartu.
 
@@ -93,4 +93,4 @@ NativeFill to form‑autofill z **„native‑like”** sugestiami i PPM. Wersja
 - Multi‑browser: Chromium SW, Firefox Event Page, Safari macOS+iOS działają.  
 - Domain Rules + WASM spełniają metryki.  
 - Testy Playwright zielone (Chromium/Firefox/WebKit).  
-- Brak sieciowych requestów bez włączonego Sync/Backup.
+- Brak sieciowych requestów poza kontekstowym storage.local.

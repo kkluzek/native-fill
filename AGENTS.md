@@ -35,6 +35,5 @@
 
 ## Security & Configuration Tips
 - Copy envs from `cp .env.example .env`; never commit secrets.
-- Minimal permissions: `storage`, `contextMenus`, `activeTab`, `scripting`; use `identity` only when enabling optional backup/sync.
+- Minimal permissions: `storage`, `contextMenus`, `activeTab`, `scripting` — brak `identity` i brak chmurowych backupów.
 - Never autofill sensitive fields (password/cc/cvv/iban). See `docs/SECURITY.md` for details.
-

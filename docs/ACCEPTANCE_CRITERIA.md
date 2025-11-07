@@ -11,10 +11,10 @@
 - Shadow DOM eliminuje kolizje styli na 20 losowych stronach (smoke OK).  
 - Options UI zapisuje stan bez utraty focusu; `aria-live="polite"` informuje „Saved”.
 
-## C. Dane i Sync
-- Domyślnie `storage.local`; toggle **Sync** kopiuje dane do `storage.sync` i po re‑loadzie są dostępne na 2. profilu.  
+## C. Dane i Storage
+- Jedynym źródłem prawdy jest `storage.local`; brak synchronizacji ani kopii w chmurze.  
 - Import/eksport JSON zachowuje integralność; duplikaty łączone po `label+hash(value)`.  
-- Brak requestów sieci przy wyłączonym Sync/Backup.
+- Brak requestów sieci związanych z zapisem/backupem.
 
 ## D. Domain Rules
 - Precedencja: `exact` > `*.domain` > `*.*.domain` > `global`.  
@@ -27,7 +27,7 @@
 
 ## F. Bezpieczeństwo
 - Pola password/cc/cvv/iban/pesel → **zero sugestii**.  
-- Minimalne permissions; `identity` tylko po włączeniu backupu.
+- Minimalne permissions: `storage`, `contextMenus`, `activeTab`, `scripting`.
 
 ## G. Wydajność
 - Render listy ≤ **4 ms**; brak długich tasków > **50 ms** w content script.  

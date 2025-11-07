@@ -1,5 +1,7 @@
 # PUBLISHING — NativeFill v2.1
 
+**Storage disclosure:** jedynym miejscem przechowywania danych użytkownika jest `chrome.storage.local` / `browser.storage.local`; brak synchronizacji ani zewnętrznego backupu. Upewnij się, że listingi i polityki jasno to komunikują.
+
 ## Chrome Web Store / Edge Add‑ons
 - Buduj: `wxt build -b chrome --mv3` i `-b edge --mv3` → wgraj ZIP z `dist/nativefill`.  
 - Wypełnij listing z `CWS_Listing.md` (dopisz Domain Rules + WASM).
