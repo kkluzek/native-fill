@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NativeFill</title>
+  </head>
+  <body>
+    <div id="popup-app" class="nf-popup">
+      <header>
+        <img src="../assets/nativefill-mono.svg" alt="NativeFill" width="20" height="20" />
+        <strong>NativeFill</strong>
+        <button id="open-options" title="Open options">⚙️</button>
+      </header>
+      <input id="popup-search" type="search" placeholder="Szukaj danych" />
+      <div id="popup-list"></div>
+      <footer>
+        <span id="popup-count"></span>
+      </footer>
+    </div>
+    <script type="module" src="./index.ts"></script>
+  </body>
+</html>

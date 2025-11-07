@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "baseUrl": "./src",
+    "paths": {
+      "@lib/*": ["lib/*"],
+      "@utils/*": ["utils/*"],
+      "@types/*": ["types/*"],
+      "@styles/*": ["styles/*"],
+      "@wasm/*": ["wasm/*"]
+    },
+    "types": ["wxt/client", "webextension-polyfill"],
+    "allowJs": false,
+    "resolveJsonModule": true,
+    "useDefineForClassFields": true
+  },
+  "include": ["src", "tests", "wxt.config.ts"],
+  "exclude": ["dist", "node_modules"]
+}
