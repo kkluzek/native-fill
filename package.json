@@ -19,7 +19,8 @@
     "format": "biome format --write .",
     "lint": "biome lint .",
     "test:install": "playwright install --with-deps",
-    "test": "playwright test"
+    "test": "playwright test",
+    "prepare": "husky"
   },
   "dependencies": {
     "webextension-polyfill": "*"
@@ -30,6 +31,9 @@
     "biome": "*",
     "web-ext": "*",
     "wxt": "*",
-    "typescript": "*"
+    "typescript": "*",
+    "@types/webextension-polyfill": "*",
+    "wabt": "*",
+    "husky": "*"
   }
 }
