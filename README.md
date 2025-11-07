@@ -5,7 +5,7 @@
 - ⚡ Sugestie podczas pisania (także `textarea`)  
 - 🖱️ Wypełnianie z menu kontekstowego (PPM)  
 - 🗂️ Foldery, profile, tagi, aliasy  
-- 🔐 Prywatność domyślna: local only, opcjonalnie Sync/Drive appData  
+- 🔐 Prywatność domyślna: wyłącznie storage.local (brak Sync/backup w chmurze)  
 - 🌍 **Chrome/Edge/Firefox/Safari (macOS+iOS)**
 
 ## Stack
