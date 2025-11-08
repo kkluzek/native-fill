@@ -5,7 +5,7 @@
 | --- | --- | --- | --- |
 | UT-001 | Testy `resolveDomainRules`: exact, wildcard, `disableOnHost`, boost/include/exclude | QA/FE | DONE (Vitest) |
 | UT-002 | Testy `loadState`/`upsertItem`: timestamps, deduplikacja importu, brak zapisu sieci | QA/FE | DONE (Vitest) |
-| UT-003 | Testy `fuzzyEngine`: WASM init sukces/porażka, fallback parity, highlight markup | QA/FE | TODO |
+| UT-003 | Testy `fuzzyEngine`: WASM init sukces/porażka, fallback parity, highlight markup | QA/FE | DONE (Vitest) |
 | UT-004 | Walidacja pól wrażliwych (`sensitivePattern`, blokady `autocomplete`) | QA/FE | DONE (Vitest) |
 | UT-005 | Stress perf (`resolveDomainRules` 10k wpisów) — regresja CPU | QA/FE | TODO |
 | UT-006 | Kontrakty typów (`NativeFillMessage`, `NativeFillState`) przez tsd/zod | QA/FE | TODO |
