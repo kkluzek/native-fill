@@ -10,6 +10,7 @@ node_modules/
 
 # Builds / output
 dist/
+.output/
 .wxt/
 build/
 tmp/
