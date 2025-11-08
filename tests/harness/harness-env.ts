@@ -2,6 +2,7 @@ import type { NativeFillState } from "../../src/types/data";
 import { harnessRuntime } from "./shims/webextension-polyfill";
 
 const networkLog: string[] = [];
+const WASM_BLOCK_KEY = "__nativefillBlockWasm";
 const defaultShortcuts = () => ({
   openDropdown: "Alt+J",
   forceDropdown: "Alt+ArrowDown"
@@ -68,11 +69,18 @@ const applyState = (state: NativeFillState) => {
 
 const instrumentNetwork = () => {
   if ((window as any).__nativefillNetworkHooked) return;
+  if (typeof (window as any).__nativefillBlockWasm === "undefined") {
+    const stored = window.sessionStorage.getItem(WASM_BLOCK_KEY);
+    (window as any).__nativefillBlockWasm = stored === "true";
+  }
   const originalFetch = window.fetch.bind(window);
   window.fetch = async (...args) => {
     const [url] = args;
     const target = typeof url === "string" ? url : url.url;
     networkLog.push(target);
+    if ((window as any).__nativefillBlockWasm && target.includes(".wasm")) {
+      throw new Error("Harness blocked WASM load");
+    }
     return originalFetch(...(args as Parameters<typeof fetch>));
   };
 
@@ -139,6 +147,10 @@ const ensureApi = () => {
     },
     clearNetworkLog() {
       networkLog.length = 0;
+    },
+    setWasmBlocked(blocked: boolean) {
+      (window as any).__nativefillBlockWasm = blocked;
+      window.sessionStorage.setItem(WASM_BLOCK_KEY, String(blocked));
     }
   };
 
@@ -159,4 +171,5 @@ export interface HarnessApi {
   importState(payload: string): void;
   getNetworkLog(): string[];
   clearNetworkLog(): void;
+  setWasmBlocked(blocked: boolean): void;
 }

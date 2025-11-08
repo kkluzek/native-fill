@@ -3,6 +3,12 @@ import wasmUrl from "@wasm/fuzzy_bg.wasm?url";
 import { tsScore } from "./ts-score";
 const encoder = new TextEncoder();
 
+const setHarnessWasmMode = (mode: "wasm" | "fallback") => {
+  if (typeof window !== "undefined") {
+    (window as any).__nativefillWasmMode = mode;
+  }
+};
+
 type MaybePromise<T> = T | Promise<T>;
 
 type FuzzyWasmExports = {
@@ -48,13 +54,19 @@ export class FuzzyEngine {
     if (import.meta.env.SSR) {
       return null;
     }
+    if (typeof window !== "undefined" && (window as any).__nativefillBlockWasm) {
+      setHarnessWasmMode("fallback");
+      return null;
+    }
     try {
       const response = await fetch(wasmUrl);
       const bytes = await response.arrayBuffer();
       const { instance } = await WebAssembly.instantiate(bytes, {});
+      setHarnessWasmMode("wasm");
       return instance.exports as FuzzyWasmExports;
     } catch (error) {
       console.warn("NativeFill: WASM fuzzy disabled, falling back to TS", error);
+      setHarnessWasmMode("fallback");
       return null;
     }
   }
@@ -88,6 +100,7 @@ export class FuzzyEngine {
         console.warn("NativeFill: WASM score failed", error);
       }
     }
+    setHarnessWasmMode("fallback");
     return tsScore(query, haystack);
   }
 

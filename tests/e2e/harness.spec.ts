@@ -112,6 +112,38 @@ test.describe("Harness E2E", () => {
     expect(networkEvents).toHaveLength(0);
   });
 
+  test("TP-009 WASM init and fallback handling", async ({ page }) => {
+    await resetHarness(page);
+    await page.evaluate(() => {
+      (window as any).nativefillHarness.setWasmBlocked(false);
+    });
+    await resetHarness(page);
+    const input = page.locator(PRIMARY_INPUT);
+    await input.click();
+    await input.type("kon");
+    await page.waitForFunction(() => (window as any).__nativefillWasmMode === "wasm");
+
+    await page.evaluate(() => {
+      (window as any).nativefillHarness.setWasmBlocked(true);
+    });
+    await resetHarness(page);
+    const fallbackInput = page.locator(PRIMARY_INPUT);
+    await fallbackInput.click();
+    await fallbackInput.type("kon");
+    await page.waitForTimeout(200);
+    const mode = await page.evaluate(() => (window as any).__nativefillWasmMode);
+    expect(mode).toBe("fallback");
+  });
+
+  test("TP-010 Shadow DOM isolation from host styles", async ({ page }) => {
+    await resetHarness(page);
+    await page.addStyleTag({ content: "ul { display: none !important; }" });
+    const input = page.locator(PRIMARY_INPUT);
+    await input.click();
+    await input.type("kon");
+    await expect(page.locator(DROPDOWN_HOST)).toHaveAttribute("data-state", "visible");
+  });
+
   test("TP-007 Options live region and focus retention", async ({ page }) => {
     await page.goto("/options.html");
     await page.waitForSelector("#item-list .nf-list-item");
