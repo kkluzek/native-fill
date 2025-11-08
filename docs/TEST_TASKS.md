@@ -33,8 +33,8 @@
 | TP-008 | Reguły domenowe: wildcard vs exact, `Disable` | Chrom/WebKit (FF skip) | DONE (Playwright harness) |
 | TP-009 | WASM init + fallback TS | Chrom/WebKit (FF skip) | DONE (Playwright harness) |
 | TP-010 | Shadow DOM izolacja na stronie z agresywnym CSS | Chrom/WebKit (FF skip) | DONE (Playwright harness) |
-| TP-011 | Shortcut remap propaguje do content script | Chrom/FF/WebKit | TODO |
-| TP-012 | Broadcast danych do otwartych kart | Chrom/FF/WebKit | TODO |
+| TP-011 | Shortcut remap propaguje do content script | Chrom/WebKit (FF skip) | DONE (Playwright harness) |
+| TP-012 | Broadcast danych do otwartych kart | Chrom/WebKit (FF skip) | DONE (Playwright harness) |
 
 ## 4. Manualne
 | ID | Opis | Platforma | Status |
