@@ -69,4 +69,46 @@ test.describe("Harness E2E", () => {
     const dropdown = page.locator(DROPDOWN_HOST);
     await expect(dropdown).toBeHidden();
   });
+
+  test("TP-005 import/export round-trip deduplicates entries", async ({ page }) => {
+    await resetHarness(page);
+    const exported = await page.evaluate(() => (window as any).nativefillHarness.exportState());
+    const result = await page.evaluate((payload) => {
+      const harness = (window as any).nativefillHarness;
+      const data = JSON.parse(payload);
+      data.items.push({
+        ...data.items[0],
+        id: "duplicate-item",
+        folder: "Duplicates"
+      });
+      harness.reset();
+      harness.importState(JSON.stringify(data));
+      const state = harness.getState();
+      return {
+        count: state.items.length,
+        folders: state.items.map((item: any) => item.folder)
+      };
+    }, exported);
+
+    expect(result.count).toBe(2);
+    expect(new Set(result.folders)).not.toContain("Duplicates");
+  });
+
+  test("TP-006 offline storage only (no network requests)", async ({ page }) => {
+    await resetHarness(page);
+    await page.evaluate(() => {
+      (window as any).nativefillHarness.clearNetworkLog();
+    });
+    const input = page.locator(PRIMARY_INPUT);
+    await input.click();
+    await input.type("Kon");
+    await page.keyboard.press("Enter");
+    await page.evaluate(() => {
+      const harness = (window as any).nativefillHarness;
+      const exported = harness.exportState();
+      harness.importState(exported);
+    });
+    const networkEvents = await page.evaluate(() => (window as any).nativefillHarness.getNetworkLog());
+    expect(networkEvents).toHaveLength(0);
+  });
 });

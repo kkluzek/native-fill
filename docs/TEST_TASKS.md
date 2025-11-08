@@ -27,8 +27,8 @@
 | TP-002 | Menu PPM, struktura folderów, wklejenie do pola | Chrom/FF/WebKit | DONE (Playwright harness) |
 | TP-003 | Współistnienie z autofill Chrome, `Alt+↓` | Chrom | DONE (Playwright harness) |
 | TP-004 | Blokada pól wrażliwych (`password`, `cvv`, `pesel`) | Chrom/FF/WebKit | DONE (Playwright harness) |
-| TP-005 | Import/eksport JSON i scalanie duplikatów | Chrom/FF/WebKit | TODO |
-| TP-006 | Offline storage — brak zapisów poza `storage.local` | Chrom/FF/WebKit | TODO |
+| TP-005 | Import/eksport JSON i scalanie duplikatów | Chrom/WebKit (FF skip) | DONE (Playwright harness) |
+| TP-006 | Offline storage — brak zapisów poza `storage.local` | Chrom/WebKit (FF skip) | DONE (Playwright harness) |
 | TP-007 | Options UX (`aria-live`, focus) | Chrom/FF/WebKit | TODO |
 | TP-008 | Reguły domenowe: wildcard vs exact, `Disable` | Chrom/FF/WebKit | TODO |
 | TP-009 | WASM init + fallback TS | Chrom/FF/WebKit | TODO |

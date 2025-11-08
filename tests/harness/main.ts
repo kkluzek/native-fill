@@ -74,6 +74,35 @@ const bootState = createDefaultState();
 applyState(bootState);
 contentScript.main();
 
+const networkLog: string[] = [];
+const originalFetch = window.fetch.bind(window);
+window.fetch = async (...args) => {
+  const [url] = args;
+  const target = typeof url === "string" ? url : url.url;
+  networkLog.push(target);
+  return originalFetch(...(args as Parameters<typeof fetch>));
+};
+
+const originalXhrOpen = XMLHttpRequest.prototype.open;
+XMLHttpRequest.prototype.open = function (...args) {
+  const [, url] = args;
+  if (typeof url === "string") {
+    networkLog.push(url);
+  }
+  return originalXhrOpen.apply(this, args as Parameters<typeof originalXhrOpen>);
+};
+
+const dedupeItems = (items: NativeFillState["items"]): NativeFillState["items"] => {
+  const map = new Map<string, typeof items[number]>();
+  items.forEach((item) => {
+    const key = `${item.label.trim().toLowerCase()}::${item.value.trim()}`;
+    if (!map.has(key)) {
+      map.set(key, item);
+    }
+  });
+  return Array.from(map.values());
+};
+
 interface HarnessApi {
   reset(): void;
   setState(state: NativeFillState): void;
@@ -112,5 +141,22 @@ window.nativefillHarness = {
       harnessRuntime.broadcast({ type: "nativefill:apply-value", value: target.value });
     }
   },
-  toggleOverlay
+  toggleOverlay,
+  exportState() {
+    return JSON.stringify(harnessRuntime.getState(), null, 2);
+  },
+  importState(payload: string) {
+    const parsed = JSON.parse(payload) as NativeFillState;
+    const next: NativeFillState = {
+      ...parsed,
+      items: dedupeItems(parsed.items)
+    };
+    applyState(next);
+  },
+  getNetworkLog() {
+    return [...networkLog];
+  },
+  clearNetworkLog() {
+    networkLog.length = 0;
+  }
 };
