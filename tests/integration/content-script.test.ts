@@ -32,7 +32,7 @@ vi.mock("@utils/domain", () => ({
   }))
 }));
 
-describe("content script DOM behaviour", () => {
+describe("IT-003 content script DOM behaviour", () => {
   beforeEach(() => {
     resetBrowserMock();
     registeredScripts.length = 0;
@@ -80,7 +80,7 @@ describe("content script DOM behaviour", () => {
 
   const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-  it("shows dropdown for fillable inputs", async () => {
+  it("IT-003 shows dropdown for fillable inputs", async () => {
     browserMock.runtime.sendMessage.mockResolvedValue({ state: sampleState });
     rankMock.mockReturnValue([
       {
@@ -113,7 +113,7 @@ describe("content script DOM behaviour", () => {
     expect(host?.style.display).toBe("block");
   });
 
-  it("keeps dropdown hidden for sensitive fields", async () => {
+  it("IT-003 keeps dropdown hidden for sensitive fields", async () => {
     browserMock.runtime.sendMessage.mockResolvedValue({ state: sampleState });
     rankMock.mockReturnValue([]);
 

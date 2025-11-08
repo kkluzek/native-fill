@@ -13,7 +13,7 @@ vi.mock("wxt/utils/define-background", () => ({
 
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-describe("background service worker", () => {
+describe("IT-001/IT-002 background service worker", () => {
   beforeEach(() => {
     resetBrowserMock();
     vi.resetModules();
@@ -52,7 +52,7 @@ describe("background service worker", () => {
     }
   });
 
-  it("rebuilds context menus and broadcasts on storage changes", async () => {
+  it("IT-001 rebuilds context menus and broadcasts on storage changes", async () => {
     const initialState = buildState();
     await setStorageValue(stateKey, initialState);
     browserMock.tabs.query.mockResolvedValue([{ id: 42 } as any]);
@@ -89,7 +89,7 @@ describe("background service worker", () => {
     });
   });
 
-  it("fills active tab when context menu item is clicked", async () => {
+  it("IT-002 fills active tab when context menu item is clicked", async () => {
     const state = buildState();
     await setStorageValue(stateKey, state);
     await loadBackground();

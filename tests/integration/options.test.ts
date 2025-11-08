@@ -7,7 +7,7 @@ vi.mock("webextension-polyfill", () => ({
   default: browserMock
 }));
 
-describe("options UI", () => {
+describe("IT-004 options UI CRUD/import/export", () => {
   beforeEach(() => {
     resetBrowserMock();
     vi.resetModules();
@@ -60,7 +60,7 @@ describe("options UI", () => {
 
   const getLiveRegion = () => document.getElementById("live-region");
 
-  it("allows CRUD on items and announces via aria-live", async () => {
+  it("IT-004 allows CRUD on items and announces via aria-live", async () => {
     await loadOptions();
     const labelInput = document.querySelector<HTMLInputElement>("input[name='label']");
     const valueInput = document.querySelector<HTMLTextAreaElement>("textarea[name='value']");
@@ -74,7 +74,7 @@ describe("options UI", () => {
     expect(/Zapisano wpis/i.test(notifications)).toBe(true);
   });
 
-  it("exports and imports JSON, merging duplicates", async () => {
+  it("IT-004 exports and imports JSON, merging duplicates", async () => {
     await loadOptions();
     const exportButton = document.querySelector<HTMLButtonElement>("#export-data");
     expect(exportButton).toBeTruthy();

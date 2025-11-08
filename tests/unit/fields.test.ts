@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { hasBlockedAutocomplete, isFillableField, isSensitiveField } from "../../src/utils/fields";
 
-describe("field filters", () => {
+describe("UT-004 field filters and sensitive detection", () => {
   it("rejects sensitive names", () => {
     const input = document.createElement("input");
     input.name = "userPassword";

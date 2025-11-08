@@ -37,7 +37,7 @@ const buildState = (overrides?: Partial<NativeFillState>): NativeFillState => {
   };
 };
 
-describe("state helpers", () => {
+describe("UT-002 state helpers (loadState & upsertItem)", () => {
   beforeEach(() => {
     resetBrowserMock();
     vi.resetModules();

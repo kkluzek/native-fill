@@ -20,14 +20,14 @@ const getMockedTsScore = async () => {
   return module.tsScore as ReturnType<typeof vi.fn>;
 };
 
-describe("FuzzyEngine", () => {
-beforeEach(() => {
-  vi.restoreAllMocks();
-});
+describe("UT-003 fuzzyEngine WASM parity", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
 
-afterEach(() => {
-  vi.unstubAllGlobals();
-});
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
 
   it("uses WASM exports when available", async () => {
     const engine = new FuzzyEngine();

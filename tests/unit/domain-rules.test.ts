@@ -14,7 +14,7 @@ const baseRule = (overrides: Partial<DomainRule>): DomainRule => ({
   updatedAt: overrides.updatedAt ?? "2025-01-01"
 });
 
-describe("resolveDomainRules", () => {
+describe("UT-001 resolveDomainRules", () => {
   it("aggregates include/exclude folders and boost tags", () => {
     const rules: DomainRule[] = [
       baseRule({ pattern: "*.example.com", includeFolders: ["Global"], boostTags: ["outreach"] }),
@@ -50,5 +50,51 @@ describe("resolveDomainRules", () => {
     expect(result.includeFolders.size).toBe(0);
     expect(result.excludeFolders.size).toBe(0);
     expect(result.boostTags.size).toBe(0);
+  });
+});
+
+const buildStressRules = (count: number, wildcardPattern = "*.stress.nativefill.dev"): DomainRule[] => {
+  return Array.from({ length: count }, (_, index) => {
+    const pattern = index % 3 === 0 ? wildcardPattern : `tenant-${index}.${wildcardPattern.replace("*.", "")}`;
+    return baseRule({
+      id: `stress-${index}`,
+      pattern,
+      includeFolders: [`Team-${index % 50}`],
+      excludeFolders: index % 5 === 0 ? [`Legacy-${index % 10}`] : [],
+      boostTags: index % 7 === 0 ? [`tag-${index % 6}`] : [],
+      disableOnHost: index % 97 === 0
+    });
+  });
+};
+
+describe("UT-005 resolveDomainRules perf harness", () => {
+  const TARGET_HOST = "tenant-999.stress.nativefill.dev";
+  const RULE_COUNT = 10_000;
+  const CPU_BUDGET_MS = 25;
+  const getRules = () => buildStressRules(RULE_COUNT);
+
+  it.skip("resolves 10k entries within CPU budget", () => {
+    const rules = getRules();
+    const start = performance.now();
+    const resolution = resolveDomainRules(TARGET_HOST, rules);
+    const elapsed = performance.now() - start;
+
+    // Placeholder assertions — tighten thresholds when perf work lands.
+    expect(resolution.includeFolders.size).toBeGreaterThan(0);
+    expect(resolution.boostTags.size).toBeGreaterThan(0);
+    expect(elapsed).toBeLessThan(CPU_BUDGET_MS);
+  });
+
+  it.skip("merges include/exclude folders deterministically under load", () => {
+    const rules = getRules();
+    const baseline = resolveDomainRules(TARGET_HOST, rules);
+    const shuffled = resolveDomainRules(
+      TARGET_HOST,
+      [...rules].sort((a, b) => a.pattern.localeCompare(b.pattern)).reverse()
+    );
+
+    expect(Array.from(baseline.includeFolders).sort()).toEqual(Array.from(shuffled.includeFolders).sort());
+    expect(Array.from(baseline.excludeFolders).sort()).toEqual(Array.from(shuffled.excludeFolders).sort());
+    expect(Array.from(baseline.boostTags).sort()).toEqual(Array.from(shuffled.boostTags).sort());
   });
 });
