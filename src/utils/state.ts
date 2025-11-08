@@ -10,6 +10,9 @@ const defaultShortcuts = () => ({
   forceDropdown: "Alt+ArrowDown"
 });
 
+const normalizeLabel = (label: string) => label.trim().toLowerCase();
+const normalizeValue = (value: string) => value.trim();
+
 const defaultSettings = (): NativeFillSettings => ({
   onboardingCompleted: false,
   shortcuts: defaultShortcuts(),
@@ -115,13 +118,24 @@ export const deleteItem = async (id: string) => {
 
 export const upsertItem = async (item: Partial<NativeFillItem> & { value: string; label: string }) => {
   await writeState((state) => {
+    const normalizedLabel = normalizeLabel(item.label);
+    const normalizedValue = normalizeValue(item.value);
     const existingIndex = state.items.findIndex((i) => i.id === item.id);
+    const duplicateIndex = state.items.findIndex((candidate) => {
+      if (candidate.id === item.id) {
+        return false;
+      }
+      return normalizeLabel(candidate.label) === normalizedLabel && normalizeValue(candidate.value) === normalizedValue;
+    });
     const timestamp = nowIso();
-    if (existingIndex >= 0) {
-      const previous = state.items[existingIndex];
-      state.items[existingIndex] = {
+    const targetIndex = existingIndex >= 0 ? existingIndex : duplicateIndex;
+    if (targetIndex >= 0) {
+      const previous = state.items[targetIndex];
+      state.items[targetIndex] = {
         ...previous,
         ...item,
+        label: item.label ?? previous.label,
+        value: item.value ?? previous.value,
         updatedAt: timestamp
       } as NativeFillItem;
       return state;
@@ -135,7 +149,9 @@ export const upsertItem = async (item: Partial<NativeFillItem> & { value: string
       folder: "General",
       createdAt: timestamp,
       updatedAt: timestamp,
-      ...item
+      ...item,
+      label: item.label.trim(),
+      value: normalizedValue
     } as NativeFillItem);
     return state;
   });

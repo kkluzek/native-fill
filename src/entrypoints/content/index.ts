@@ -3,12 +3,11 @@ import browser from "webextension-polyfill";
 import type { RankedItem } from "@utils/fuzzy";
 import { fuzzyEngine } from "@utils/fuzzy";
 import { resolveDomainRules } from "@utils/domain";
+import { isFillableField } from "@utils/fields";
 import type { NativeFillState } from "@types/data";
 import dropdownStyles from "@styles/dropdown.css?inline";
 
 const MAX_VISIBLE = 6;
-const sensitivePattern = /(password|passcode|pass|secret|otp|cvv|iban|card|credit|ssn|pesel|tax|pin)/i;
-const blockedAutocompletes = ["off", "new-password", "cc-number", "cc-csc"];
 
 export default defineContentScript({
   matches: ["<all_urls>"],
@@ -94,29 +93,6 @@ export default defineContentScript({
         event.metaKey === descriptor.meta &&
         event.key.toLowerCase() === descriptor.key
       );
-    };
-
-    const isFillableField = (
-      element: EventTarget | null
-    ): element is HTMLInputElement | HTMLTextAreaElement => {
-      if (!(element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement)) {
-        return false;
-      }
-      if (element instanceof HTMLInputElement) {
-        const disallowed = ["password", "hidden", "file", "checkbox", "radio", "submit", "button"];
-        if (disallowed.includes(element.type)) {
-          return false;
-        }
-      }
-      const name = `${element.name} ${element.id} ${element.getAttribute("aria-label") ?? ""}`;
-      if (sensitivePattern.test(name)) {
-        return false;
-      }
-      const autocomplete = element.getAttribute("autocomplete")?.toLowerCase();
-      if (autocomplete && blockedAutocompletes.includes(autocomplete)) {
-        return false;
-      }
-      return true;
     };
 
     const hideDropdown = () => {

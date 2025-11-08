@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
-import type { DomainRule } from "../src/types/data";
-import { resolveDomainRules } from "../src/utils/domain";
+import type { DomainRule } from "../../src/types/data";
+import { resolveDomainRules } from "../../src/utils/domain";
 
 const rules: DomainRule[] = [
   {

@@ -3,7 +3,7 @@
   "version": "2.1.0",
   "private": true,
   "type": "module",
-  "description": "NativeFill \u2014 open-source, privacy-first form autofill (multi-browser, WASM fuzzy, Biome-only).",
+  "description": "NativeFill — open-source, privacy-first form autofill (multi-browser, WASM fuzzy, Biome-only).",
   "scripts": {
     "dev:chrome": "wxt dev -b chrome",
     "dev:edge": "wxt dev -b edge",
@@ -19,7 +19,10 @@
     "format": "biome format --write .",
     "lint": "biome lint .",
     "test:install": "playwright install --with-deps",
-    "test": "playwright test",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:e2e": "playwright test",
+    "test": "bun run test:unit && bun run test:integration && bun run test:e2e",
     "prepare": "husky"
   },
   "dependencies": {
@@ -27,13 +30,15 @@
   },
   "devDependencies": {
     "@playwright/test": "*",
-    "playwright": "*",
-    "biome": "*",
-    "web-ext": "*",
-    "wxt": "*",
-    "typescript": "*",
     "@types/webextension-polyfill": "*",
+    "biome": "*",
+    "husky": "*",
+    "jsdom": "^27.1.0",
+    "playwright": "*",
+    "typescript": "*",
+    "vitest": "*",
     "wabt": "*",
-    "husky": "*"
+    "web-ext": "*",
+    "wxt": "*"
   }
 }

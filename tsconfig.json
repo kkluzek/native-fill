@@ -13,7 +13,7 @@
       "@styles/*": ["styles/*"],
       "@wasm/*": ["wasm/*"]
     },
-    "types": ["wxt/client", "webextension-polyfill"],
+    "types": ["wxt/client", "webextension-polyfill", "vitest/globals"],
     "allowJs": false,
     "resolveJsonModule": true,
     "useDefineForClassFields": true
