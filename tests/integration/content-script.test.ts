@@ -210,5 +210,73 @@ describe("IT-003 content script DOM behaviour", () => {
     expect(host.dataset.state).toBe("hidden");
   });
 
-  it.todo("ACCEPTANCE B — announces suggestion counts via aria-live");
+  it("ACCEPTANCE B — announces suggestion counts via aria-live", async () => {
+    const enrichedState: NativeFillState = {
+      ...sampleState,
+      items: [
+        sampleState.items[0],
+        {
+          ...sampleState.items[0],
+          id: "item-2",
+          label: "Invoice",
+          value: "NativeFill LLC",
+          folder: "Finance"
+        }
+      ]
+    };
+    browserMock.runtime.sendMessage.mockResolvedValue({ state: enrichedState });
+    const ranked = [
+      {
+        item: enrichedState.items[0],
+        score: 0.95,
+        highlightedLabel: "<mark>Kon</mark>rad"
+      },
+      {
+        item: enrichedState.items[1],
+        score: 0.75,
+        highlightedLabel: "<mark>In</mark>voice"
+      }
+    ];
+    rankMock.mockImplementation((query: string) => {
+      if (typeof query === "string" && query.toLowerCase().includes("kon")) {
+        return ranked;
+      }
+      return [];
+    });
+
+    const script = await loadContentScript();
+    script.main();
+
+    const input = document.createElement("input");
+    input.type = "text";
+    document.body.append(input);
+
+    const focusEvent = new FocusEvent("focusin", { bubbles: true });
+    Object.defineProperty(focusEvent, "target", { value: input, configurable: true });
+    document.dispatchEvent(focusEvent);
+
+    input.value = "kon";
+    const inputEvent = new Event("input", { bubbles: true });
+    Object.defineProperty(inputEvent, "target", { value: input, configurable: true });
+    document.dispatchEvent(inputEvent);
+
+    await tick();
+
+    const liveRegion = document.getElementById("nativefill-live-region");
+    expect(liveRegion?.getAttribute("aria-live")).toBe("polite");
+    const liveText = liveRegion?.textContent?.toLowerCase() ?? "";
+    expect(liveText).toContain("2");
+    expect(liveText).toContain("sugest");
+
+    rankMock.mockImplementation(() => []);
+    input.value = "zzz";
+    const secondInputEvent = new Event("input", { bubbles: true });
+    Object.defineProperty(secondInputEvent, "target", { value: input, configurable: true });
+    document.dispatchEvent(secondInputEvent);
+
+    await tick();
+
+    const updatedText = liveRegion?.textContent?.toLowerCase() ?? "";
+    expect(updatedText).toContain("brak");
+  });
 });

@@ -39,6 +39,53 @@ export default defineContentScript({
     shadow.append(style, wrapper);
     document.documentElement?.append(host);
 
+    const ensureLiveRegion = (): HTMLDivElement => {
+      const existing = document.getElementById("nativefill-live-region");
+      if (existing) {
+        return existing as HTMLDivElement;
+      }
+      const region = document.createElement("div");
+      region.id = "nativefill-live-region";
+      region.setAttribute("role", "status");
+      region.setAttribute("aria-live", "polite");
+      region.setAttribute("aria-atomic", "true");
+      region.style.position = "fixed";
+      region.style.width = "1px";
+      region.style.height = "1px";
+      region.style.margin = "-1px";
+      region.style.padding = "0";
+      region.style.border = "0";
+      region.style.overflow = "hidden";
+      region.style.clip = "rect(0 0 0 0)";
+      region.style.clipPath = "inset(50%)";
+      region.style.whiteSpace = "nowrap";
+      (document.body ?? document.documentElement ?? document).append(region);
+      return region;
+    };
+
+    const liveRegion = ensureLiveRegion();
+    const setLiveText = (message: string) => {
+      if (liveRegion.textContent !== message) {
+        liveRegion.textContent = message;
+      }
+    };
+
+    const formatSuggestionCount = (count: number) => {
+      if (count === 1) return "1 sugestia";
+      if (count >= 2 && count <= 4) return `${count} sugestie`;
+      return `${count} sugestii`;
+    };
+
+    const announceSuggestions = (count: number, query: string) => {
+      if (count <= 0) {
+        setLiveText(query ? "Brak sugestii dla tego tekstu." : "Brak sugestii. Zacznij pisać.");
+        return;
+      }
+      setLiveText(`NativeFill: ${formatSuggestionCount(count)} dostępne.`);
+    };
+
+    setLiveText("NativeFill gotowy do sugestii.");
+
     let activeField: HTMLInputElement | HTMLTextAreaElement | null = null;
     let activeIndex = -1;
     let currentSuggestions: RankedItem[] = [];
@@ -103,6 +150,7 @@ export default defineContentScript({
       currentSuggestions = [];
       list.innerHTML = "";
       host.dataset.state = "hidden";
+      announceSuggestions(0, activeField?.value ?? "");
     };
 
     const showDropdown = () => {
@@ -134,6 +182,7 @@ export default defineContentScript({
         empty.setAttribute("aria-disabled", "true");
         empty.textContent = query ? "Brak dopasowań" : "Zacznij pisać lub użyj Alt+J";
         list.append(empty);
+        announceSuggestions(0, query);
         return;
       }
       suggestions.forEach((suggestion, index) => {
@@ -164,6 +213,7 @@ export default defineContentScript({
 
         list.append(li);
       });
+      announceSuggestions(suggestions.length, query);
     };
 
     const renderDisabled = () => {
@@ -176,6 +226,7 @@ export default defineContentScript({
       list.append(li);
       updatePosition();
       host.dataset.state = "disabled";
+      setLiveText("NativeFill wyłączony na tej domenie.");
       showDropdown();
     };
 
