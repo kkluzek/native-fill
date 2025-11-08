@@ -102,6 +102,7 @@ const ensureApi = () => {
   }
 
   instrumentNetwork();
+  const channel = new BroadcastChannel("nativefill-harness");
   const initialState = createDefaultState();
   applyState(initialState);
 
@@ -119,6 +120,8 @@ const ensureApi = () => {
     },
     broadcast(message: unknown) {
       harnessRuntime.broadcast(message);
+      this.__attachedTabs.forEach((tab) => tab(message));
+      channel.postMessage(message);
     },
     contextFill(itemId: string) {
       const state = harnessRuntime.getState();
@@ -151,7 +154,17 @@ const ensureApi = () => {
     setWasmBlocked(blocked: boolean) {
       (window as any).__nativefillBlockWasm = blocked;
       window.sessionStorage.setItem(WASM_BLOCK_KEY, String(blocked));
-    }
+    },
+    attachTabChannel(handler: (message: unknown) => void) {
+      const listener = (event: MessageEvent) => handler(event.data);
+      channel.addEventListener("message", listener);
+      this.__attachedTabs.add(handler);
+      return () => {
+        this.__attachedTabs.delete(handler);
+        channel.removeEventListener("message", listener);
+      };
+    },
+    __attachedTabs: new Set<(message: unknown) => void>()
   };
 
   (window as any).nativefillHarness = api;

@@ -144,6 +144,49 @@ test.describe("Harness E2E", () => {
     await expect(page.locator(DROPDOWN_HOST)).toHaveAttribute("data-state", "visible");
   });
 
+  test("TP-011 Shortcut remap propagates to the content script", async ({ page }) => {
+    await page.goto("/options.html");
+    await page.waitForSelector("#item-list .nf-list-item");
+    await page.fill("input#shortcut-open", "Alt+X");
+    await page.fill("input#shortcut-force", "Alt+Y");
+    await page.keyboard.press("Tab");
+    await page.waitForTimeout(200);
+    await page.goto("/");
+    const input = page.locator(PRIMARY_INPUT);
+    await input.click();
+    await page.keyboard.press("Alt+X");
+    await expect(page.locator(DROPDOWN_HOST)).toHaveAttribute("data-state", "visible");
+  });
+
+  test("TP-012 Broadcast updates all tabs", async ({ browser }) => {
+    const context = await browser.newContext();
+    const pageA = await context.newPage();
+    const pageB = await context.newPage();
+    await pageA.goto("/");
+    await pageB.goto("/");
+    await pageA.evaluate(() => {
+      const harness = (window as any).nativefillHarness;
+      const detach = harness.attachTabChannel((message: any) => {
+        (window as any).__broadcastCapture = message?.state?.items?.[0]?.label ?? "";
+      });
+      (window as any).__detachBroadcast = detach;
+    });
+    await pageB.evaluate(() => {
+      const harness = (window as any).nativefillHarness;
+      const state = harness.getState();
+      state.items[0].label = "Updated Email";
+      harness.setState(state);
+      harness.broadcast({ type: "nativefill:data", state });
+    });
+    await pageA.waitForTimeout(200);
+    const updatedLabel = await pageA.evaluate(() => (window as any).__broadcastCapture ?? "");
+    expect(updatedLabel).toBe("Updated Email");
+    await pageA.evaluate(() => {
+      (window as any).__detachBroadcast?.();
+    });
+    await context.close();
+  });
+
   test("TP-007 Options live region and focus retention", async ({ page }) => {
     await page.goto("/options.html");
     await page.waitForSelector("#item-list .nf-list-item");
