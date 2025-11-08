@@ -160,4 +160,8 @@ export const setStorageValue = async (key: string, value: unknown) => {
 
 export const getStorageValue = (key: string) => clone(storageData[key]);
 
+export const emitStorageChange = (changes: Record<string, StorageChange>, area: string) => {
+  storageOnChanged.emit(changes, area);
+};
+
 export default browserMock;

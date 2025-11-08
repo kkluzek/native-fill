@@ -13,9 +13,9 @@
 ## 2. Integracyjne (IT)
 | ID | Opis | Właściciel | Status |
 | --- | --- | --- | --- |
-| IT-001 | Background SW: `storage.onChanged` → rebuild menu → broadcast | QA/FE | TODO |
-| IT-002 | Context menu click => `nativefill:apply-value` (mock `browser.tabs.sendMessage`) | QA/FE | TODO |
-| IT-003 | Content script DOM lifecycle + skróty (`Alt+J`, `Alt+↓`, `Esc`) w jsdom | QA/FE | TODO |
+| IT-001 | Background SW: `storage.onChanged` → rebuild menu → broadcast | QA/FE | DONE (Vitest) |
+| IT-002 | Context menu click => `nativefill:apply-value` (mock `browser.tabs.sendMessage`) | QA/FE | DONE (Vitest) |
+| IT-003 | Content script DOM lifecycle + skróty (`Alt+J`, `Alt+↓`, `Esc`) w jsdom | QA/FE | DONE (Vitest) |
 | IT-004 | Options CRUD/import/export + live region komunikaty | QA/FE | TODO |
 | IT-005 | Popup search ranking oraz wysyłka do aktywnej karty | QA/FE | TODO |
 | IT-006 | Wymuszony fallback TS przy błędzie WASM | QA/FE | TODO |
