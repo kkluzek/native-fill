@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NativeFill Harness</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <main>
+      <h1>NativeFill Harness</h1>
+      <section class="form">
+        <label>
+          Primary input
+          <input data-testid="primary-input" />
+        </label>
+        <label>
+          Notes
+          <textarea data-testid="notes-field"></textarea>
+        </label>
+        <label>
+          Password field
+          <input type="password" data-testid="password-input" />
+        </label>
+      </section>
+      <section class="overlay" data-testid="chrome-overlay" hidden>
+        Chrome autofill overlay (simulated)
+      </section>
+    </main>
+    <script type="module" src="/main.ts"></script>
+  </body>
+</html>

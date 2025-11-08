@@ -1,5 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const HARNESS_URL = process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:4173";
+
 export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: true,
@@ -12,6 +14,7 @@ export default defineConfig({
     timeout: 5_000
   },
   use: {
+    baseURL: HARNESS_URL,
     trace: "retain-on-failure",
     video: "retain-on-failure",
     screenshot: "only-on-failure"
@@ -30,5 +33,12 @@ export default defineConfig({
       name: "webkit",
       use: { ...devices["Desktop Safari"] }
     }
-  ]
+  ],
+  webServer: {
+    command:
+      "bash -lc 'bun run build:harness && bunx http-server dist/harness -p 4173 -a 127.0.0.1 --silent'",
+    url: HARNESS_URL,
+    reuseExistingServer: !process.env.CI,
+    timeout: 120_000
+  }
 });

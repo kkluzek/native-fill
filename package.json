@@ -23,6 +23,8 @@
     "test:integration": "vitest run tests/integration",
     "test:e2e": "playwright test",
     "test": "bun run test:unit && bun run test:integration && bun run test:e2e",
+    "dev:harness": "vite",
+    "build:harness": "vite build",
     "prepare": "husky"
   },
   "dependencies": {
@@ -32,10 +34,12 @@
     "@playwright/test": "*",
     "@types/webextension-polyfill": "*",
     "biome": "*",
+    "http-server": "^14.1.1",
     "husky": "*",
     "jsdom": "^27.1.0",
     "playwright": "*",
     "typescript": "*",
+    "vite": "*",
     "vitest": "*",
     "wabt": "*",
     "web-ext": "*",

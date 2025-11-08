@@ -23,10 +23,10 @@
 ## 3. E2E (Playwright)
 | ID | Opis | Przeglądarki | Status |
 | --- | --- | --- | --- |
-| TP-001 | Sugestie & latencja ≤150 ms, Enter wkleja wartość | Chrom/FF/WebKit | TODO |
-| TP-002 | Menu PPM, struktura folderów, wklejenie do pola | Chrom/FF/WebKit | TODO |
-| TP-003 | Współistnienie z autofill Chrome, `Alt+↓` | Chrom | TODO |
-| TP-004 | Blokada pól wrażliwych (`password`, `cvv`, `pesel`) | Chrom/FF/WebKit | TODO |
+| TP-001 | Sugestie & latencja ≤150 ms, Enter wkleja wartość | Chrom/FF/WebKit | DONE (Playwright harness) |
+| TP-002 | Menu PPM, struktura folderów, wklejenie do pola | Chrom/FF/WebKit | DONE (Playwright harness) |
+| TP-003 | Współistnienie z autofill Chrome, `Alt+↓` | Chrom | DONE (Playwright harness) |
+| TP-004 | Blokada pól wrażliwych (`password`, `cvv`, `pesel`) | Chrom/FF/WebKit | DONE (Playwright harness) |
 | TP-005 | Import/eksport JSON i scalanie duplikatów | Chrom/FF/WebKit | TODO |
 | TP-006 | Offline storage — brak zapisów poza `storage.local` | Chrom/FF/WebKit | TODO |
 | TP-007 | Options UX (`aria-live`, focus) | Chrom/FF/WebKit | TODO |
