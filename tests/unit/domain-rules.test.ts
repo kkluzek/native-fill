@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { performance } from "node:perf_hooks";
 import { resolveDomainRules } from "../../src/utils/domain";
 import type { DomainRule } from "../../src/types/data";
 
@@ -50,5 +51,63 @@ describe("UT-001 resolveDomainRules", () => {
     expect(result.includeFolders.size).toBe(0);
     expect(result.excludeFolders.size).toBe(0);
     expect(result.boostTags.size).toBe(0);
+  });
+});
+
+describe("UT-005 domain rule resolver perf safeguards", () => {
+  const HOST = "login.nativefill.dev";
+
+  const buildRuleset = (size = 10_000) => {
+    const includeSet = new Set<string>();
+    const excludeSet = new Set<string>();
+    const boostSet = new Set<string>();
+
+    const rules: DomainRule[] = Array.from({ length: size }, (_, index) => {
+      const include = `Folder-${index % 64}`;
+      const exclude = `Archive-${index % 32}`;
+      const boost = `tag-${index % 16}`;
+      includeSet.add(include);
+      excludeSet.add(exclude);
+      boostSet.add(boost);
+
+      return baseRule({
+        id: `rule-${index}`,
+        pattern: index % 2 === 0 ? "*.nativefill.dev" : "*",
+        includeFolders: [include],
+        excludeFolders: [exclude],
+        boostTags: [boost],
+        disableOnHost: false
+      });
+    });
+
+    rules[size - 1] = baseRule({
+      id: "rule-disable",
+      pattern: HOST,
+      includeFolders: ["Sensitive"],
+      excludeFolders: [],
+      boostTags: [],
+      disableOnHost: true
+    });
+
+    return {
+      rules,
+      includeCount: includeSet.size + 1,
+      excludeCount: excludeSet.size,
+      boostCount: boostSet.size
+    };
+  };
+
+  it("resolves 10k rules under 100ms while deduplicating folders/tags", () => {
+    const { rules, includeCount, excludeCount, boostCount } = buildRuleset();
+    const started = performance.now();
+    const resolution = resolveDomainRules(HOST, rules);
+    const duration = performance.now() - started;
+
+    expect(resolution.includeFolders.size).toBe(includeCount);
+    expect(resolution.excludeFolders.size).toBe(excludeCount);
+    expect(resolution.boostTags.size).toBe(boostCount);
+    expect(resolution.includeFolders.has("Sensitive")).toBe(true);
+    expect(resolution.disable).toBe(true);
+    expect(duration).toBeLessThan(100);
   });
 });

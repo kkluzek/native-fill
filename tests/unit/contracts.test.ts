@@ -1,6 +1,7 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import type { NativeFillMessage } from "../../src/types/messages";
 import type { NativeFillState } from "../../src/types/data";
+import { nativeFillMessageSchema } from "../../src/types/contracts";
 
 const buildStateFixture = (): NativeFillState => ({
   items: [
@@ -59,5 +60,20 @@ describe("NativeFill message contracts (UT-006)", () => {
     }>();
   });
 
-  it.todo("validates discriminated union with zod/tsd once available");
+  it("validates discriminated union with zod", () => {
+    const valid = {
+      type: "nativefill:data",
+      state: buildStateFixture()
+    } satisfies NativeFillMessage;
+
+    expect(() => nativeFillMessageSchema.parse(valid)).not.toThrow();
+
+    expect(() =>
+      nativeFillMessageSchema.parse({ type: "nativefill:apply-value", value: 123 })
+    ).toThrowError();
+
+    expect(() =>
+      nativeFillMessageSchema.parse({ type: "nativefill:dropdown-toggle", reason: "invalid" })
+    ).toThrowError();
+  });
 });

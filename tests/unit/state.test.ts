@@ -1,3 +1,13 @@
+/**
+ * @file State Management Tests
+ * @acceptance-criteria C — Data & Storage
+ *
+ * ACCEPTANCE C: Data & Storage
+ * - storage.local only (no sync/cloud backup)
+ * - Import/export JSON with deduplication by label+hash(value)
+ * - No network requests for storage operations
+ */
+
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import browserMock, { getStorageValue, resetBrowserMock, setStorageValue } from "../mocks/browser";
 import type { NativeFillItem, NativeFillState } from "../../src/types/data";
@@ -91,5 +101,26 @@ describe("UT-002 state helpers (loadState & upsertItem)", () => {
     const created = nextState.items.find((item) => item.label === "Address");
     expect(created?.id).toBeTruthy();
     expect(new Date(created!.createdAt).toString()).not.toBe("Invalid Date");
+  });
+});
+
+describe("ACCEPTANCE C — import/export dedupe", () => {
+  it("prepareImportedState merges duplicate entries by label + value hash", async () => {
+    const { prepareImportedState } = await import("../../src/utils/state");
+    const base = buildState();
+    const duplicate = {
+      ...base.items[0],
+      id: "dup-1",
+      folder: "Duplicates",
+      updatedAt: "2025-02-01"
+    };
+    const payload: NativeFillState = {
+      ...base,
+      items: [...base.items, duplicate]
+    };
+
+    const result = prepareImportedState(payload);
+    expect(result.items).toHaveLength(1);
+    expect(result.items[0].folder).not.toBe("Duplicates");
   });
 });

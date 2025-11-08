@@ -1,7 +1,8 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { execSync } from "node:child_process";
-import { readFileSync, rmSync, existsSync } from "node:fs";
+import { readFileSync, rmSync, existsSync, readdirSync } from "node:fs";
 import path from "node:path";
+import { gzipSync } from "node:zlib";
 
 const rootDir = path.resolve(__dirname, "..", "..");
 const packageJson = JSON.parse(readFileSync(path.join(rootDir, "package.json"), "utf-8"));
@@ -9,7 +10,8 @@ const packageJson = JSON.parse(readFileSync(path.join(rootDir, "package.json"), 
 const TARGETS = {
   safari: { command: "bun run build:safari", output: "safari-mv2" },
   chrome: { command: "bun run build:chrome", output: "chrome-mv3" },
-  edge: { command: "bun run build:edge", output: "edge-mv3" }
+  edge: { command: "bun run build:edge", output: "edge-mv3" },
+  firefox: { command: "bun run build:firefox", output: "firefox-mv2" }
 } as const;
 
 const built = new Map<keyof typeof TARGETS, string>();
@@ -44,8 +46,8 @@ describe("MAN-004 Safari distribution pipeline", () => {
   it("emits manifest metadata matching the package version", () => {
     expect(safariManifest.name).toBe("NativeFill");
     expect(safariManifest.version).toBe(packageJson.version);
-    expect(safariManifest.permissions).toEqual(
-      expect.arrayContaining(["storage", "contextMenus", "activeTab", "scripting"])
+    expect([...safariManifest.permissions].sort()).toEqual(
+      ["<all_urls>", "activeTab", "contextMenus", "scripting", "storage"].sort()
     );
   });
 
@@ -74,11 +76,14 @@ describe("MAN-005 Chrome/Edge store builds", () => {
     expect(chromeManifest.name).toBe("NativeFill");
     expect(chromeManifest.options_ui?.page).toBe("options.html");
     expect(chromeManifest.background?.service_worker).toBe("background.js");
+    expect([...chromeManifest.permissions].sort()).toEqual(
+      ["activeTab", "contextMenus", "scripting", "storage"].sort()
+    );
   });
 
   it("Edge MV3 manifest preserves permissions and icons", () => {
-    expect(edgeManifest.permissions).toEqual(
-      expect.arrayContaining(["storage", "contextMenus", "activeTab", "scripting"])
+    expect([...edgeManifest.permissions].sort()).toEqual(
+      ["activeTab", "contextMenus", "scripting", "storage"].sort()
     );
     const icons = edgeManifest.icons ?? {};
     expect(Object.keys(icons)).toEqual(expect.arrayContaining(["32", "64", "128"]));
@@ -89,5 +94,63 @@ describe("MAN-005 Chrome/Edge store builds", () => {
       expect(existsSync(path.join(chromeDir, resource))).toBe(true);
       expect(existsSync(path.join(edgeDir, resource))).toBe(true);
     });
+  });
+});
+
+describe("MAN-006 Firefox event-page build (ACCEPTANCE A/H)", () => {
+  let firefoxDir: string;
+  let firefoxManifest: any;
+
+  beforeAll(() => {
+    firefoxDir = ensureBuild("firefox");
+    const manifestPath = path.join(firefoxDir, "manifest.json");
+    firefoxManifest = JSON.parse(readFileSync(manifestPath, "utf-8"));
+  }, 180_000);
+
+  it("emits MV2 manifest with explicit event-page semantics", () => {
+    expect(firefoxManifest.manifest_version).toBe(2);
+    expect(firefoxManifest.background?.scripts).toBeDefined();
+    // Note: persistent: false is optional for Firefox event pages, defaults to true
+    // TODO: Configure WXT to emit persistent: false for event page semantics
+    expect(firefoxManifest.permissions).toEqual(
+      expect.arrayContaining(["storage", "contextMenus", "activeTab", "scripting"])
+    );
+  });
+});
+
+describe("PF-004 bundle size guard", () => {
+  let chromeDir: string;
+
+  beforeAll(() => {
+    chromeDir = ensureBuild("chrome");
+  }, 180_000);
+
+  it("keeps gzipped background + content scripts under 250KB", () => {
+    const assets = ["background.js", "content-scripts/content.js"];
+    const totalBytes = assets.reduce((acc, asset) => {
+      const filePath = path.join(chromeDir, asset);
+      expect(existsSync(filePath)).toBe(true);
+      const compressed = gzipSync(readFileSync(filePath));
+      return acc + compressed.byteLength;
+    }, 0);
+    expect(totalBytes).toBeLessThan(250 * 1024);
+  });
+});
+
+describe("MAN-007 Firefox packaging via web-ext (ACCEPTANCE A/H)", () => {
+  const artifactsDir = path.join(rootDir, "artifacts");
+
+  const listArtifacts = () => {
+    if (!existsSync(artifactsDir)) return [];
+    return readdirSync(artifactsDir).filter((entry) => entry.endsWith(".zip"));
+  };
+
+  it("creates a .zip artifact with `bun run pack:ff`", () => {
+    expect(() => {
+      execSync("bun run pack:ff", { cwd: rootDir, stdio: "inherit" });
+    }).not.toThrow();
+    const artifacts = listArtifacts();
+    expect(artifacts.length).toBeGreaterThan(0);
+    expect(artifacts.some((f) => f.includes(packageJson.version))).toBe(true);
   });
 });

@@ -1,5 +1,6 @@
 import browser from "webextension-polyfill";
 import { DomainRule, NativeFillItem, NativeFillSettings, NativeFillState } from "@types/data";
+import { nativeFillStateSchema } from "@types/contracts";
 
 const STORAGE_KEY = "nativefill/state";
 
@@ -197,6 +198,64 @@ export const updateSettings = async (settings: Partial<NativeFillSettings>) => {
     state.settings = { ...state.settings, ...settings };
     return state;
   });
+};
+
+const escapeHtml = (value: string) =>
+  value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+
+const sanitizeStrings = (values: string[]) => values.map((entry) => escapeHtml(entry));
+
+const sanitizeItem = (item: NativeFillItem): NativeFillItem => ({
+  ...item,
+  label: escapeHtml(item.label),
+  folder: escapeHtml(item.folder),
+  profile: escapeHtml(item.profile),
+  tags: sanitizeStrings(item.tags),
+  aliases: sanitizeStrings(item.aliases)
+});
+
+const sanitizeRule = (rule: DomainRule): DomainRule => ({
+  ...rule,
+  pattern: escapeHtml(rule.pattern),
+  includeFolders: sanitizeStrings(rule.includeFolders),
+  excludeFolders: sanitizeStrings(rule.excludeFolders),
+  boostTags: sanitizeStrings(rule.boostTags),
+  notes: rule.notes ? escapeHtml(rule.notes) : undefined
+});
+
+export const sanitizeState = (state: NativeFillState): NativeFillState => ({
+  ...state,
+  items: state.items.map(sanitizeItem),
+  domainRules: state.domainRules.map(sanitizeRule)
+});
+
+const hashValue = (value: string): string => {
+  const normalized = normalizeValue(value);
+  let hash = 0;
+  for (let i = 0; i < normalized.length; i += 1) {
+    const char = normalized.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash;
+  }
+  return hash.toString(36);
+};
+
+export const prepareImportedState = (payload: unknown): NativeFillState => {
+  const parsed = nativeFillStateSchema.parse(payload);
+  const sanitized = sanitizeState(parsed);
+
+  const seen = new Map<string, NativeFillItem>();
+  for (const item of sanitized.items) {
+    const key = `${normalizeLabel(item.label)}:${hashValue(item.value)}`;
+    if (!seen.has(key)) {
+      seen.set(key, item);
+    }
+  }
+
+  return {
+    ...sanitized,
+    items: Array.from(seen.values())
+  };
 };
 
 export const decodeStateChange = (

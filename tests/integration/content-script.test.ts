@@ -139,4 +139,76 @@ describe("IT-003 content script DOM behaviour", () => {
     expect(rankMock).not.toHaveBeenCalled();
     expect(host?.style.display).toBe("none");
   });
+
+  it("ACCEPTANCE B — arrow navigation + Esc manage dropdown lifecycle", async () => {
+    const enrichedState: NativeFillState = {
+      ...sampleState,
+      items: [
+        sampleState.items[0],
+        {
+          ...sampleState.items[0],
+          id: "item-2",
+          label: "Invoice",
+          value: "NativeFill LLC",
+          folder: "Finance"
+        }
+      ]
+    };
+    browserMock.runtime.sendMessage.mockResolvedValue({ state: enrichedState });
+    rankMock.mockReturnValue([
+      {
+        item: enrichedState.items[0],
+        score: 0.9,
+        highlightedLabel: "<mark>Kon</mark>rad"
+      },
+      {
+        item: enrichedState.items[1],
+        score: 0.8,
+        highlightedLabel: "<mark>In</mark>voice"
+      }
+    ]);
+
+    const script = await loadContentScript();
+    script.main();
+
+    const input = document.createElement("input");
+    input.type = "text";
+    document.body.append(input);
+    const focusEvent = new FocusEvent("focusin", { bubbles: true });
+    Object.defineProperty(focusEvent, "target", { value: input, configurable: true });
+    document.dispatchEvent(focusEvent);
+
+    input.value = "in";
+    const inputEvent = new Event("input", { bubbles: true });
+    Object.defineProperty(inputEvent, "target", { value: input, configurable: true });
+    document.dispatchEvent(inputEvent);
+
+    await tick();
+
+    const host = document.getElementById("nativefill-dropdown-host")!;
+    expect(host.dataset.state).toBe("visible");
+
+    const dispatchKey = (key: string) => {
+      const event = new KeyboardEvent("keydown", { key, bubbles: true });
+      Object.defineProperty(event, "target", { value: input, configurable: true });
+      document.dispatchEvent(event);
+    };
+
+    dispatchKey("ArrowDown");
+    expect(input.getAttribute("aria-activedescendant")).toBe("nativefill-option-1");
+
+    dispatchKey("ArrowUp");
+    expect(input.getAttribute("aria-activedescendant")).toBe("nativefill-option-0");
+
+    dispatchKey("ArrowDown");
+    expect(input.getAttribute("aria-activedescendant")).toBe("nativefill-option-1");
+
+    dispatchKey("Enter");
+    expect(input.value).toBe(enrichedState.items[1].value);
+
+    dispatchKey("Escape");
+    expect(host.dataset.state).toBe("hidden");
+  });
+
+  it.todo("ACCEPTANCE B — announces suggestion counts via aria-live");
 });

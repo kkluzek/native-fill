@@ -14,7 +14,7 @@
     "build:firefox": "wxt build -b firefox",
     "build:safari": "wxt build -b safari",
     "build:all": "bun run build:chrome && bun run build:edge && bun run build:firefox && bun run build:safari",
-    "pack:ff": "web-ext build -s dist/firefox -a artifacts",
+    "pack:ff": "web-ext build -s .output/firefox-mv2 -a artifacts --overwrite-dest",
     "check": "biome check .",
     "format": "biome format --write .",
     "lint": "biome lint .",
@@ -43,6 +43,7 @@
     "vitest": "*",
     "wabt": "*",
     "web-ext": "*",
-    "wxt": "*"
+    "wxt": "*",
+    "zod": "^4.1.12"
   }
 }

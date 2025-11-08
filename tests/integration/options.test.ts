@@ -52,6 +52,8 @@ describe("IT-004 options UI CRUD/import/export", () => {
     }
   });
 
+  const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
+
   const loadOptions = async () => {
     await setStorageValue(stateKey, buildState());
     const module = await import("../../src/entrypoints/options/index");
@@ -105,5 +107,48 @@ describe("IT-004 options UI CRUD/import/export", () => {
     const refreshed = await import("../../src/utils/state");
     const state = await refreshed.loadState();
     expect(state.items).toHaveLength(2);
+  });
+
+  it("sanitizes imported labels to prevent HTML injection (SEC-004)", async () => {
+    await loadOptions();
+    const hiddenInput = document.querySelector<HTMLInputElement>("input[type='file'][accept='application/json']");
+    expect(hiddenInput).toBeTruthy();
+
+    const maliciousState = buildState();
+    maliciousState.items[0].label = '<img src=x onerror="alert(1)">';
+    maliciousState.items[0].folder = "<b>Injected</b>";
+
+    Object.defineProperty(hiddenInput!, "files", {
+      configurable: true,
+      value: [
+        {
+          text: async () => JSON.stringify(maliciousState)
+        }
+      ]
+    });
+
+    hiddenInput!.dispatchEvent(new Event("change"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const labelNode = document.querySelector(".nf-list-item strong");
+    const folderMeta = document.querySelector(".nf-list-item .nf-meta");
+    expect(labelNode?.innerHTML ?? "").not.toContain("<img");
+    expect(labelNode?.innerHTML ?? "").toContain("&lt;");
+    expect(folderMeta?.innerHTML ?? "").not.toContain("<b>");
+  });
+
+  it("ACCEPTANCE D — Test match resolves domain precedence in UI", async () => {
+    await loadOptions();
+    const domainInput = document.getElementById("test-domain") as HTMLInputElement;
+    const button = document.getElementById("test-rule") as HTMLButtonElement;
+    expect(domainInput).toBeTruthy();
+    expect(button).toBeTruthy();
+
+    domainInput.value = "docs.example.com";
+    button.click();
+    await tick();
+
+    const result = document.getElementById("test-result")?.textContent ?? "";
+    expect(result).toContain("Include: Contacts");
   });
 });

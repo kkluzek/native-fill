@@ -1,3 +1,13 @@
+/**
+ * @file Safari Platform Parity Tests
+ * @acceptance-criteria A — Multi-browser support
+ *
+ * ACCEPTANCE A: Multi-browser
+ * - Chrome/Edge: MV3, Service Worker, `scripting` API
+ * - Firefox: Event Page, `.xpi` packaging
+ * - Safari macOS/iOS: dropdown, context menu, manager UI
+ */
+
 import { devices, expect, test } from "@playwright/test";
 
 const PRIMARY_INPUT = "[data-testid='primary-input']";
@@ -27,6 +37,22 @@ const resetHarness = async (page: import("@playwright/test").Page) => {
   });
 };
 
+/**
+ * MAN-001: Safari macOS Manual Checklist
+ *
+ * Manual verification steps:
+ * 1. Build: `wxt build -b safari` → `dist/safari`
+ * 2. Convert: `xcrun safari-web-extension-converter dist/safari --macos-only --project-location tmp/nativefill-safari`
+ * 3. Open project in Xcode, update Bundle Identifier
+ * 4. Enable in Safari: "Allow Unsigned Extensions" → Activate NativeFill in Preferences
+ * 5. Functional tests:
+ *    - Dropdown ≤150ms, shortcuts Alt+J, Esc, Enter
+ *    - Context menu (folders, items)
+ *    - Options UI CRUD (import/export JSON)
+ *    - Domain Rules "Disable on this host"
+ * 6. Check console logs; no errors
+ * 7. Report results + screenshots
+ */
 test.describe("MAN-001 Safari macOS parity", () => {
   test.skip(({ browserName }) => browserName !== "webkit", "Requires Safari/WebKit runtime");
 
@@ -70,6 +96,19 @@ test.describe("MAN-001 Safari macOS parity", () => {
   });
 });
 
+/**
+ * MAN-002: Safari iOS Manual Checklist
+ *
+ * Manual verification steps:
+ * 1. Build Xcode archive → install on device/TestFlight
+ * 2. Settings > Safari > Extensions → enable NativeFill
+ * 3. Test:
+ *    - Dropdown (on-screen keyboard), context menu (long-press)
+ *    - Options mini UI (if supported) or dedicated screen
+ *    - Import/export via files
+ * 4. Check permissions (no additional requests)
+ * 5. Document screen recording + notes
+ */
 test.describe("MAN-002 Safari iOS parity", () => {
   test.skip(({ browserName }) => browserName !== "webkit", "Requires Safari/WebKit runtime");
 

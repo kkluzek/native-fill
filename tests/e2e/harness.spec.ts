@@ -1,3 +1,34 @@
+/**
+ * @file E2E Harness Tests (TP-001 to TP-012)
+ * @acceptance-criteria B, C, D, E, G
+ *
+ * ACCEPTANCE B: UX "native-like"
+ * - Dropdown appears ≤150ms after typing
+ * - Arrow keys, Enter, Esc navigation
+ * - Shadow DOM prevents style conflicts
+ * - ARIA announces suggestion counts
+ *
+ * ACCEPTANCE C: Data & Storage
+ * - storage.local only (no sync/cloud backup)
+ * - Import/export JSON with deduplication by label+hash(value)
+ * - No network requests for storage operations
+ *
+ * ACCEPTANCE D: Domain Rules
+ * - Precedence: exact > *.domain > *.*.domain > global
+ * - "Disable on host" hides dropdown/context menu
+ * - CRUD editor with "Test match" feature
+ *
+ * ACCEPTANCE E: WASM Fuzzy
+ * - initWasm() ≤100ms (warm cache)
+ * - match() ≤3ms for 5k items
+ * - Fallback to TypeScript without errors
+ *
+ * ACCEPTANCE G: Performance
+ * - Render list ≤4ms
+ * - No long tasks >50ms in content script
+ * - Bundle <250KB gzipped
+ */
+
 import { test, expect } from "@playwright/test";
 
 const PRIMARY_INPUT = "[data-testid='primary-input']";

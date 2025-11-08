@@ -4,6 +4,7 @@ import {
   deleteDomainRule,
   deleteItem,
   loadState,
+  prepareImportedState,
   stateKey,
   updateSettings,
   upsertDomainRule,
@@ -411,7 +412,8 @@ hiddenImport.addEventListener("change", async () => {
   const text = await file.text();
   try {
     const payload = JSON.parse(text) as NativeFillState;
-    await browser.storage.local.set({ [stateKey]: payload });
+    const sanitized = prepareImportedState(payload);
+    await browser.storage.local.set({ [stateKey]: sanitized });
     speak("Zaimportowano dane");
     await refreshState();
   } catch (error) {
