@@ -111,4 +111,47 @@ test.describe("Harness E2E", () => {
     const networkEvents = await page.evaluate(() => (window as any).nativefillHarness.getNetworkLog());
     expect(networkEvents).toHaveLength(0);
   });
+
+  test("TP-007 Options live region and focus retention", async ({ page }) => {
+    await page.goto("/options.html");
+    await page.waitForSelector("#item-list .nf-list-item");
+    const label = page.locator("input[name='label']");
+    const value = page.locator("textarea[name='value']");
+    await label.fill("Harness Item");
+    await value.fill("Some value");
+    const saveButton = page.locator("#item-form button[type='submit']");
+    await saveButton.click();
+    await page.waitForFunction(() => {
+      return document.getElementById("live-region")?.textContent?.includes("Zapisano") ?? false;
+    });
+    const activeRole = await page.evaluate(() => document.activeElement?.textContent ?? "");
+    expect(activeRole).toMatch(/Save/i);
+  });
+
+  test("TP-008 Domain rule disable hides dropdown", async ({ page }) => {
+    await resetHarness(page);
+    await page.evaluate(() => {
+      const harness = (window as any).nativefillHarness;
+      const state = harness.getState();
+      state.domainRules.push({
+        id: "disable-local",
+        pattern: "*",
+        includeFolders: [],
+        excludeFolders: [],
+        boostTags: [],
+        disableOnHost: true,
+        notes: "",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
+      harness.setState(state);
+    });
+    await page.waitForTimeout(200);
+    const input = page.locator(PRIMARY_INPUT);
+    await input.click();
+    await input.type("Test");
+    await page.waitForTimeout(200);
+    const dropdown = page.locator(DROPDOWN_HOST);
+    await expect(dropdown).toHaveAttribute("data-state", "disabled");
+  });
 });

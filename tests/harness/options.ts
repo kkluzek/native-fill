@@ -1,6 +1,5 @@
 import "./style.css";
-import contentScript from "../../src/entrypoints/content";
 import { setupHarness } from "./harness-env";
+import "../../src/entrypoints/options";
 
 setupHarness();
-contentScript.main();

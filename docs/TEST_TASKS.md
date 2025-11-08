@@ -16,7 +16,7 @@
 | IT-001 | Background SW: `storage.onChanged` → rebuild menu → broadcast | QA/FE | DONE (Vitest) |
 | IT-002 | Context menu click => `nativefill:apply-value` (mock `browser.tabs.sendMessage`) | QA/FE | DONE (Vitest) |
 | IT-003 | Content script DOM lifecycle + skróty (`Alt+J`, `Alt+↓`, `Esc`) w jsdom | QA/FE | DONE (Vitest) |
-| IT-004 | Options CRUD/import/export + live region komunikaty | QA/FE | TODO |
+| IT-004 | Options CRUD/import/export + live region komunikaty | QA/FE | DONE (Vitest) |
 | IT-005 | Popup search ranking oraz wysyłka do aktywnej karty | QA/FE | TODO |
 | IT-006 | Wymuszony fallback TS przy błędzie WASM | QA/FE | TODO |
 
@@ -29,8 +29,8 @@
 | TP-004 | Blokada pól wrażliwych (`password`, `cvv`, `pesel`) | Chrom/FF/WebKit | DONE (Playwright harness) |
 | TP-005 | Import/eksport JSON i scalanie duplikatów | Chrom/WebKit (FF skip) | DONE (Playwright harness) |
 | TP-006 | Offline storage — brak zapisów poza `storage.local` | Chrom/WebKit (FF skip) | DONE (Playwright harness) |
-| TP-007 | Options UX (`aria-live`, focus) | Chrom/FF/WebKit | TODO |
-| TP-008 | Reguły domenowe: wildcard vs exact, `Disable` | Chrom/FF/WebKit | TODO |
+| TP-007 | Options UX (`aria-live`, focus) | Chrom/WebKit (FF skip) | DONE (Playwright harness) |
+| TP-008 | Reguły domenowe: wildcard vs exact, `Disable` | Chrom/WebKit (FF skip) | DONE (Playwright harness) |
 | TP-009 | WASM init + fallback TS | Chrom/FF/WebKit | TODO |
 | TP-010 | Shadow DOM izolacja na stronie z agresywnym CSS | Chrom/FF/WebKit | TODO |
 | TP-011 | Shortcut remap propaguje do content script | Chrom/FF/WebKit | TODO |

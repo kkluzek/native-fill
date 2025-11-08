@@ -20,6 +20,7 @@ export default defineContentScript({
     host.style.pointerEvents = "none";
     host.style.display = "none";
     host.style.width = "auto";
+    host.dataset.state = "hidden";
 
     const shadow = host.attachShadow({ mode: "closed" });
     const style = document.createElement("style");
@@ -101,12 +102,16 @@ export default defineContentScript({
       activeIndex = -1;
       currentSuggestions = [];
       list.innerHTML = "";
+      host.dataset.state = "hidden";
     };
 
     const showDropdown = () => {
       if (!activeField) return;
       host.style.display = "block";
       host.style.pointerEvents = "auto";
+      if (host.dataset.state !== "disabled") {
+        host.dataset.state = "visible";
+      }
     };
 
     const updatePosition = () => {
@@ -120,6 +125,7 @@ export default defineContentScript({
     };
 
     const renderList = (suggestions: RankedItem[], query: string) => {
+      host.dataset.state = "visible";
       list.innerHTML = "";
       if (!suggestions.length) {
         const empty = document.createElement("li");
@@ -169,6 +175,7 @@ export default defineContentScript({
       li.textContent = "NativeFill wyłączony na tej domenie";
       list.append(li);
       updatePosition();
+      host.dataset.state = "disabled";
       showDropdown();
     };
 

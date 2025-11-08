@@ -3,8 +3,9 @@ import path from "node:path";
 
 const resolveFromRoot = (p: string) => path.resolve(__dirname, p);
 
+const rootDir = "tests/harness";
 export default defineConfig({
-  root: "tests/harness",
+  root: rootDir,
   base: "./",
   server: {
     port: 4173,
@@ -12,7 +13,13 @@ export default defineConfig({
   },
   build: {
     outDir: resolveFromRoot("dist/harness"),
-    emptyOutDir: true
+    emptyOutDir: true,
+    rollupOptions: {
+      input: {
+        main: resolveFromRoot("tests/harness/index.html"),
+        options: resolveFromRoot("tests/harness/options.html")
+      }
+    }
   },
   resolve: {
     alias: {

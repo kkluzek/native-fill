@@ -6,6 +6,8 @@ type MessageListener = (
   sendResponse: (payload?: unknown) => void
 ) => boolean | void;
 
+const STORAGE_KEY = "nativefill/state";
+
 const deepClone = <T>(value: T): T => {
   if (typeof structuredClone === "function") {
     return structuredClone(value);
@@ -14,6 +16,7 @@ const deepClone = <T>(value: T): T => {
 };
 
 let harnessState: NativeFillState | null = null;
+const storageData: Record<string, unknown> = {};
 const messageListeners = new Set<MessageListener>();
 
 const runtime = {
@@ -37,6 +40,34 @@ const runtime = {
 };
 
 const storage = {
+  local: {
+    async get(query?: string | string[] | Record<string, unknown>) {
+      if (!query) {
+        return deepClone(storageData);
+      }
+      if (typeof query === "string") {
+        return { [query]: deepClone(storageData[query]) };
+      }
+      if (Array.isArray(query)) {
+        return query.reduce<Record<string, unknown>>((acc, key) => {
+          acc[key] = deepClone(storageData[key]);
+          return acc;
+        }, {});
+      }
+      return Object.keys(query).reduce<Record<string, unknown>>((acc, key) => {
+        acc[key] = deepClone(storageData[key]);
+        return acc;
+      }, {});
+    },
+    async set(entries: Record<string, unknown>) {
+      Object.entries(entries).forEach(([key, value]) => {
+        storageData[key] = deepClone(value);
+        if (key === STORAGE_KEY) {
+          harnessState = deepClone(value as NativeFillState);
+        }
+      });
+    }
+  },
   onChanged: {
     addListener() {
       /* noop */
@@ -73,6 +104,7 @@ export default browserShim;
 export const harnessRuntime = {
   setState(state: NativeFillState) {
     harnessState = deepClone(state);
+    storageData[STORAGE_KEY] = deepClone(state);
   },
   getState(): NativeFillState {
     if (!harnessState) {
